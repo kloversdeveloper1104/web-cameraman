@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gallery</title>
+<link rel="icon" href="co/icon.ico">
 
 <style>
 body {
@@ -38,6 +39,15 @@ body {
   display: block;
   border-radius: 8px;
   background: #1a1a1a;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+}
+
+.gallery img.loaded {
+  opacity: 1;
 }
 
 .gallery figcaption {
@@ -117,6 +127,7 @@ body {
   will-change: transform;
   user-select: none;
   -webkit-user-drag: none;
+  -webkit-touch-callout: none;
 }
 
 /* ×ボタン */
@@ -193,6 +204,8 @@ function addProfileCard() {
   const img = document.createElement("img");
   img.src = PROFILE_CARD_ICON;
   img.alt = "プロフィール";
+  img.draggable = false;
+  img.onload = () => img.classList.add("loaded");
   figure.appendChild(img);
 
   const cap = document.createElement("figcaption");
@@ -217,6 +230,8 @@ function renderGallery() {
     img.src = thumbSrc(item.src);
     img.loading = "lazy";
     img.alt = item.text || "";
+    img.draggable = false;
+    img.onload = () => img.classList.add("loaded");
     figure.appendChild(img);
 
     if (item.text) {
@@ -256,9 +271,26 @@ modal.onclick = (e) => {
   if (e.target === modal) closeModal();
 };
 
-// ESC
+// ESC・矢印キー
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") closeModal();
+  if (modal.style.display !== "flex") return;
+  if (e.key === "Escape") {
+    closeModal();
+  } else if (e.key === "ArrowLeft") {
+    currentIndex = (currentIndex - 1 + allImages.length) % allImages.length;
+    showImage(currentIndex);
+  } else if (e.key === "ArrowRight") {
+    currentIndex = (currentIndex + 1) % allImages.length;
+    showImage(currentIndex);
+  }
+});
+
+// 右クリック・ドラッグ・長押し保存の抑止(スクリーンショットは防げません)
+document.addEventListener("contextmenu", (e) => {
+  if (e.target.tagName === "IMG") e.preventDefault();
+});
+document.addEventListener("dragstart", (e) => {
+  if (e.target.tagName === "IMG") e.preventDefault();
 });
 
 // ===== ズーム・パン・スワイプ =====
