@@ -203,8 +203,8 @@ const PROFILE_CARD_ICON =
   encodeURIComponent(
     `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'>
       <rect width='200' height='200' fill='#1a1a1a'/>
-      <circle cx='100' cy='78' r='36' fill='none' stroke='#666' stroke-width='8'/>
-      <path d='M40 170 C40 120 160 120 160 170' fill='none' stroke='#666' stroke-width='8' stroke-linecap='round'/>
+      <rect x='36' y='62' width='128' height='90' rx='6' fill='none' stroke='#666' stroke-width='8'/>
+      <path d='M40 68 L100 118 L160 68' fill='none' stroke='#666' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/>
     </svg>`
   );
 
@@ -213,14 +213,10 @@ function addProfileCard() {
 
   const img = document.createElement("img");
   img.src = PROFILE_CARD_ICON;
-  img.alt = "プロフィール";
+  img.alt = "";
   img.draggable = false;
   img.onload = () => img.classList.add("loaded");
   figure.appendChild(img);
-
-  const cap = document.createElement("figcaption");
-  cap.textContent = "プロフィール";
-  figure.appendChild(cap);
 
   figure.onclick = () => {
     window.location.href = "profile.html";
