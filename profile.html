@@ -23,29 +23,75 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 16px;
+  padding: 48px 20px;
+  box-sizing: border-box;
   background: #111;
   font-family: sans-serif;
   color: #fff;
 }
 
+.card {
+  width: 100%;
+  max-width: 480px;
+}
+
 h1 {
-  font-size: 20px;
-  margin: 0;
+  font-size: 22px;
+  margin: 0 0 24px;
+  text-align: center;
 }
 
-p {
+h2 {
+  font-size: 14px;
   color: #888;
-  margin: 0;
+  margin: 0 0 8px;
+  font-weight: normal;
 }
 
-a {
+.section {
+  margin-bottom: 28px;
+}
+
+.section p {
+  margin: 0;
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+.contact-btn {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 20px;
+  border-radius: 10px;
+  background: #4a7dff;
+  color: #fff;
+  text-align: center;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.contact-btn:hover {
+  background: #3d6ce0;
+}
+
+.contact-note {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+}
+
+.back {
+  display: block;
+  margin-top: 32px;
+  text-align: center;
   color: #4a7dff;
   text-decoration: none;
 }
 
-a:hover {
+.back:hover {
   text-decoration: underline;
 }
 </style>
@@ -53,9 +99,40 @@ a:hover {
 
 <body>
 
-<h1>プロフィール</h1>
-<p>準備中です</p>
-<a href="index.html">← ギャラリーに戻る</a>
+<div class="card">
+  <h1>プロフィール</h1>
+
+  <div class="section">
+    <h2>活動内容</h2>
+    <p>コスプレ撮影を中心に活動しています。
+撮影のご依頼はお気軽にご連絡ください。</p>
+  </div>
+
+  <div class="section">
+    <h2>コンタクト</h2>
+    <a class="contact-btn" id="contactBtn" href="#">撮影依頼を送る</a>
+    <p class="contact-note">クリックするとメールアプリでテンプレートが開きます</p>
+  </div>
+
+  <a class="back" href="index.html">← ギャラリーに戻る</a>
+</div>
+
+<script>
+const subject = "【撮影依頼】";
+const body =
+  "お名前: \n" +
+  "ご希望の撮影日: \n" +
+  "撮影場所: \n" +
+  "撮影内容・ジャンル: \n" +
+  "参考画像URL(あれば): \n" +
+  "ご予算: \n" +
+  "その他ご要望: \n";
+
+document.getElementById("contactBtn").href =
+  "mailto:kloversdeveloper@gmail.com" +
+  "?subject=" + encodeURIComponent(subject) +
+  "&body=" + encodeURIComponent(body);
+</script>
 
 </body>
 </html>
