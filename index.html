@@ -13,72 +13,6 @@ body {
   color: #fff;
 }
 
-/* ===== 検索・タグ ===== */
-.controls {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: #111;
-  padding: 10px 10px 8px;
-  border-bottom: 1px solid #222;
-}
-
-#searchBox {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid #333;
-  background: #1c1c1c;
-  color: #fff;
-  font-size: 15px;
-  margin-bottom: 8px;
-}
-
-#searchBox:focus {
-  outline: none;
-  border-color: #666;
-}
-
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  max-height: 74px;
-  overflow-y: auto;
-}
-
-.tag {
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: #222;
-  border: 1px solid #333;
-  font-size: 12px;
-  color: #ccc;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.tag:hover {
-  border-color: #555;
-}
-
-.tag.active {
-  background: #4a7dff;
-  border-color: #4a7dff;
-  color: #fff;
-}
-
-.tag.hidden {
-  display: none;
-}
-
-#resultCount {
-  font-size: 12px;
-  color: #888;
-  padding: 8px 10px 0;
-}
-
 /* ===== ギャラリー ===== */
 .gallery {
   display: grid;
@@ -215,12 +149,6 @@ body {
 
 <body>
 
-<div class="controls">
-  <input id="searchBox" type="text" placeholder="名前で検索…">
-  <div class="tags" id="tags"></div>
-</div>
-<div id="resultCount"></div>
-
 <div class="gallery" id="gallery"></div>
 
 <div id="modal">
@@ -238,14 +166,9 @@ const modalImgWrap = document.getElementById("modalImgWrap");
 const modalImg = document.getElementById("modalImg");
 const caption = document.getElementById("caption");
 const closeBtn = document.getElementById("closeBtn");
-const searchBox = document.getElementById("searchBox");
-const tagsEl = document.getElementById("tags");
-const resultCount = document.getElementById("resultCount");
 
 let allImages = [];
-let visibleImages = [];
 let currentIndex = 0;
-const activeTags = new Set();
 
 function thumbSrc(src) {
   const file = src.split("/").pop();
@@ -253,71 +176,10 @@ function thumbSrc(src) {
   return "co/thumbs/" + base + ".webp";
 }
 
-function tagsOf(text) {
-  return (text || "")
-    .split(/[、,]/)
-    .map((s) => s.trim())
-    .filter(Boolean);
-}
-
-function buildTagCloud() {
-  const freq = new Map();
-  for (const item of allImages) {
-    for (const t of tagsOf(item.text)) {
-      freq.set(t, (freq.get(t) || 0) + 1);
-    }
-  }
-  const sorted = [...freq.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ja"));
-
-  tagsEl.innerHTML = "";
-  for (const [name, count] of sorted) {
-    const chip = document.createElement("span");
-    chip.className = "tag";
-    chip.textContent = `${name} (${count})`;
-    chip.dataset.name = name;
-    chip.onclick = () => {
-      if (activeTags.has(name)) {
-        activeTags.delete(name);
-        chip.classList.remove("active");
-      } else {
-        activeTags.add(name);
-        chip.classList.add("active");
-      }
-      applyFilter();
-    };
-    tagsEl.appendChild(chip);
-  }
-}
-
-function applyFilter() {
-  const q = searchBox.value.trim().toLowerCase();
-
-  visibleImages = allImages.filter((item) => {
-    const text = (item.text || "").toLowerCase();
-    if (q && !text.includes(q)) return false;
-    if (activeTags.size > 0) {
-      const itemTags = new Set(tagsOf(item.text));
-      for (const t of activeTags) {
-        if (!itemTags.has(t)) return false;
-      }
-    }
-    return true;
-  });
-
-  // 検索文字列に一致しないタグチップは隠す(絞り込み中は選べる候補を減らす)
-  tagsEl.querySelectorAll(".tag").forEach((chip) => {
-    const name = chip.dataset.name.toLowerCase();
-    chip.classList.toggle("hidden", q !== "" && !name.includes(q) && !activeTags.has(chip.dataset.name));
-  });
-
-  renderGallery();
-}
-
 function renderGallery() {
   gallery.innerHTML = "";
-  resultCount.textContent = `${visibleImages.length} 件`;
 
-  visibleImages.forEach((item, index) => {
+  allImages.forEach((item, index) => {
     const figure = document.createElement("figure");
 
     const img = document.createElement("img");
@@ -346,8 +208,8 @@ function renderGallery() {
 function showImage(index) {
   currentIndex = index;
   resetZoom();
-  modalImg.src = visibleImages[index].src;
-  caption.textContent = visibleImages[index].text;
+  modalImg.src = allImages[index].src;
+  caption.textContent = allImages[index].text;
 }
 
 // 閉じる
@@ -463,18 +325,18 @@ function endPointer(e) {
 
   if (wasSwipe) {
     if (swipeDx > 50) {
-      currentIndex = (currentIndex - 1 + visibleImages.length) % visibleImages.length;
+      currentIndex = (currentIndex - 1 + allImages.length) % allImages.length;
       showImage(currentIndex);
     } else if (swipeDx < -50) {
-      currentIndex = (currentIndex + 1) % visibleImages.length;
+      currentIndex = (currentIndex + 1) % allImages.length;
       showImage(currentIndex);
     } else if (!didPinchOrDrag) {
       // タップ: 左右クリックでページ送り(PC/スマホ共通)
       const rect = modalImgWrap.getBoundingClientRect();
       if (e.clientX - rect.left < rect.width / 2) {
-        currentIndex = (currentIndex - 1 + visibleImages.length) % visibleImages.length;
+        currentIndex = (currentIndex - 1 + allImages.length) % allImages.length;
       } else {
-        currentIndex = (currentIndex + 1) % visibleImages.length;
+        currentIndex = (currentIndex + 1) % allImages.length;
       }
       showImage(currentIndex);
     }
@@ -515,11 +377,8 @@ modalImgWrap.addEventListener(
 async function init() {
   const res = await fetch("data/images.json");
   allImages = await res.json();
-  buildTagCloud();
-  applyFilter();
+  renderGallery();
 }
-
-searchBox.addEventListener("input", applyFilter);
 
 init();
 </script>
