@@ -176,8 +176,39 @@ function thumbSrc(src) {
   return "co/thumbs/" + base + ".webp";
 }
 
+// ギャラリー内から別ページへ飛べる固定カード
+const PROFILE_CARD_ICON =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'>
+      <rect width='200' height='200' fill='#1a1a1a'/>
+      <circle cx='100' cy='78' r='36' fill='none' stroke='#666' stroke-width='8'/>
+      <path d='M40 170 C40 120 160 120 160 170' fill='none' stroke='#666' stroke-width='8' stroke-linecap='round'/>
+    </svg>`
+  );
+
+function addProfileCard() {
+  const figure = document.createElement("figure");
+
+  const img = document.createElement("img");
+  img.src = PROFILE_CARD_ICON;
+  img.alt = "プロフィール";
+  figure.appendChild(img);
+
+  const cap = document.createElement("figcaption");
+  cap.textContent = "プロフィール";
+  figure.appendChild(cap);
+
+  figure.onclick = () => {
+    window.location.href = "profile.html";
+  };
+
+  gallery.appendChild(figure);
+}
+
 function renderGallery() {
   gallery.innerHTML = "";
+  addProfileCard();
 
   allImages.forEach((item, index) => {
     const figure = document.createElement("figure");

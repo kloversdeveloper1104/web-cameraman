@@ -32,7 +32,7 @@ jobs:
       - name: Assemble site
         run: |
           mkdir -p _site
-          cp index.html _site/
+          cp index.html profile.html _site/
           cp -r data _site/
           cp -r co _site/
 
