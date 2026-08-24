@@ -1,0 +1,19 @@
+{
+  "name": "web-cameraman",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "manifest": "node scripts/generate-manifest.mjs",
+    "thumbs": "node scripts/generate-thumbs.mjs",
+    "build": "npm run manifest && npm run thumbs",
+    "serve": "python -m http.server 8787"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "sharp": "^0.35.3"
+  }
+}
