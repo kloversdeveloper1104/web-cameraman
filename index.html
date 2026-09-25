@@ -502,12 +502,7 @@ function shuffle(arr) {
 async function init() {
   // 一覧は毎回サーバーに確認して、更新が古いまま残らないようにする
   const res = await fetch("data/images.json", { cache: "no-cache" });
-  const shuffled = shuffle(await res.json());
-  // 動画は埋もれないよう、シャッフル後に先頭へ寄せる
-  allImages = [
-    ...shuffled.filter((item) => isVideo(item.src)),
-    ...shuffled.filter((item) => !isVideo(item.src)),
-  ];
+  allImages = shuffle(await res.json());
   renderGallery();
 }
 
