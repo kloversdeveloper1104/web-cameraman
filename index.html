@@ -60,6 +60,20 @@ body {
   opacity: 1;
 }
 
+/* 動画の再生マーク */
+.gallery figure.video::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(0,0,0,0.55) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M9 6.5v11l9-5.5z' fill='white'/></svg>") center / 26px no-repeat;
+  pointer-events: none;
+}
+
 .gallery figcaption {
   position: absolute;
   left: 0;
@@ -140,6 +154,12 @@ body {
   -webkit-touch-callout: none;
 }
 
+#modal video {
+  max-width: 100%;
+  max-height: 100%;
+  display: none;
+}
+
 /* ×ボタン */
 #closeBtn {
   position: absolute;
@@ -176,6 +196,7 @@ body {
   <span id="closeBtn">&times;</span>
   <div id="modalImgWrap">
     <img id="modalImg">
+    <video id="modalVideo" controls playsinline controlslist="nodownload"></video>
   </div>
   <div id="caption"></div>
 </div>
@@ -185,11 +206,16 @@ const gallery = document.getElementById("gallery");
 const modal = document.getElementById("modal");
 const modalImgWrap = document.getElementById("modalImgWrap");
 const modalImg = document.getElementById("modalImg");
+const modalVideo = document.getElementById("modalVideo");
 const caption = document.getElementById("caption");
 const closeBtn = document.getElementById("closeBtn");
 
 let allImages = [];
 let currentIndex = 0;
+
+function isVideo(src) {
+  return /.(mp4|webm|mov)$/i.test(src);
+}
 
 function thumbSrc(src) {
   const file = src.split("/").pop();
@@ -231,6 +257,7 @@ function renderGallery() {
 
   allImages.forEach((item, index) => {
     const figure = document.createElement("figure");
+    if (isVideo(item.src)) figure.classList.add("video");
 
     const img = document.createElement("img");
     img.src = thumbSrc(item.src);
@@ -260,12 +287,31 @@ function renderGallery() {
 function showImage(index) {
   currentIndex = index;
   resetZoom();
-  modalImg.src = allImages[index].src;
-  caption.textContent = allImages[index].text;
+  stopVideo();
+  const item = allImages[index];
+  if (isVideo(item.src)) {
+    modalImg.style.display = "none";
+    modalImg.removeAttribute("src");
+    modalVideo.style.display = "block";
+    modalVideo.src = item.src;
+  } else {
+    modalVideo.style.display = "none";
+    modalImg.style.display = "";
+    modalImg.src = item.src;
+  }
+  caption.textContent = item.text;
+}
+
+// 動画の再生を止めて読み込みも打ち切る
+function stopVideo() {
+  modalVideo.pause();
+  modalVideo.removeAttribute("src");
+  modalVideo.load();
 }
 
 // 閉じる
 function closeModal() {
+  stopVideo();
   modal.style.display = "none";
   document.body.style.overflow = "";
   resetZoom();
@@ -293,7 +339,7 @@ document.addEventListener("keydown", (e) => {
 
 // 右クリック・ドラッグ・長押し保存の抑止(スクリーンショットは防げません)
 document.addEventListener("contextmenu", (e) => {
-  if (e.target.tagName === "IMG") e.preventDefault();
+  if (e.target.tagName === "IMG" || e.target.tagName === "VIDEO") e.preventDefault();
 });
 document.addEventListener("dragstart", (e) => {
   if (e.target.tagName === "IMG") e.preventDefault();
@@ -336,6 +382,7 @@ function dist(p1, p2) {
 }
 
 modalImgWrap.addEventListener("pointerdown", (e) => {
+  if (e.target === modalVideo) return;
   modalImgWrap.setPointerCapture(e.pointerId);
   pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
   didPinchOrDrag = false;
@@ -418,6 +465,7 @@ modalImgWrap.addEventListener("pointercancel", endPointer);
 // ダブルタップ/ダブルクリックでズーム切り替え
 let lastTapTime = 0;
 modalImgWrap.addEventListener("pointerup", (e) => {
+  if (e.target === modalVideo) return;
   const now = Date.now();
   if (now - lastTapTime < 300 && pointers.size === 0) {
     scale = scale > 1 ? 1 : 2;

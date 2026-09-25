@@ -26,6 +26,9 @@ jobs:
 
       - run: npm ci
 
+      - name: Ensure ffmpeg (video thumbnails)
+        run: command -v ffmpeg >/dev/null || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+
       - name: Generate manifest & thumbnails
         run: npm run build
 

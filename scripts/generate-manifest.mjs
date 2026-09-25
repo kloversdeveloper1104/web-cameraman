@@ -1,4 +1,4 @@
-// co/ フォルダの画像一覧から data/images.json を自動生成する。
+// co/ フォルダの画像・動画一覧から data/images.json を自動生成する。
 // 既存のキャプション(text)は data/images.json があればそれを、なければ index.html に
 // 埋め込まれていた images 配列を読んで引き継ぐ。
 //
@@ -13,7 +13,7 @@ const CO_DIR = path.join(ROOT, "co");
 const MANIFEST_PATH = path.join(ROOT, "data", "images.json");
 const INDEX_HTML_PATH = path.join(ROOT, "index.html");
 
-const IMAGE_EXT = new Set([".jpg", ".jpeg", ".jfif", ".png", ".webp", ".gif"]);
+const IMAGE_EXT = new Set([".jpg", ".jpeg", ".jfif", ".png", ".webp", ".gif", ".mp4", ".webm", ".mov"]);
 
 function loadExistingCaptions() {
   // 優先: data/images.json
